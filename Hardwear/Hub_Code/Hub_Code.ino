@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include "controllerinfo.h"
 
-#define DELAY 10
+#define DELAY 50
 
 #define TO_BYTE_ARRAY(arr, val, bytes) for (int macro_i = 0; macro_i < bytes; macro_i++) arr[macro_i] = *((byte *)(val + macro_i));
 
