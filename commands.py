@@ -22,7 +22,7 @@ OPCODES = {
 hub = serial.Serial(port='COM13', baudrate=9600, timeout=0.05)
 
 def write_commands(player, command, data, reply_expected=False):
-    data = []
+    reply = []
 
     packet = bytes()
     packet += serial.to_bytes(player)
@@ -38,5 +38,5 @@ def write_commands(player, command, data, reply_expected=False):
     if reply_expected:
         reply_len = hub.read(1)
 
-        data = hub.read(reply_len)
-    return data
+        reply = hub.read(reply_len)
+    return reply
