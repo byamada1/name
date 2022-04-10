@@ -19,7 +19,7 @@ OPCODES = {
     "send done" : b'\x08'
 }
 
-hub = serial.Serial(port='COM13', baudrate=9600, timeout=0.05)
+hub = serial.Serial(port='COM14', baudrate=9600, timeout=0.05)
 
 def write_commands(player, command, data, reply_expected=False):
     reply = []
