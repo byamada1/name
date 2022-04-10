@@ -34,7 +34,7 @@ def write_commands(player, command, data, reply_expected=False):
         elif type(data) == list:
             transformed_data = serial.to_bytes(data)
         else:
-            transformed_data = serial.to_bytes((data,))
+            transformed_data = data.to_bytes(2, "little")
         packet += serial.to_bytes((len(transformed_data),))
         packet += transformed_data
     
