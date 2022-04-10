@@ -1,3 +1,6 @@
+from tempfile import tempdir
+
+
 class fighter:
     
     name = "blank"
@@ -25,6 +28,10 @@ class fighter:
         self.update_atk()
     
     def update_atk(self):
+        if(self.atk_min > self.atk_max):
+            temp = self.atk_min
+            self.atk_min = self.atk_max
+            self.atk_max = temp
         self.atk_str = str(self.atk_min + self.weapon_atk) + " - " + str(self.atk_max + self.weapon_atk)
 
 

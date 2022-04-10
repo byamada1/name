@@ -5,14 +5,19 @@ import pygame
 import math
 import random
 
+# classes
 import fighter
 import box
+
+# serial commands
+#import commands
 
 # defining modes (different screens)
 START = 0
 CREATE = 1
 BATTLE = 2
 LEVEL = 3
+CHOOSE = 4
 
 def update_screen():
     global left_info, right_info
@@ -33,6 +38,7 @@ def update_screen():
 
 def display_mode():
     global mode
+    # choosing button text
     if(mode == BATTLE):
         for index in range(len(buttons)):
             button = buttons[index]
@@ -42,28 +48,6 @@ def display_mode():
             img = font.render(battle_labels[index], True, button.text_color)
             screen.blit(img, (button.rect.left + 10, button.rect.top + 10))
 
-        # draw attack stat symbols
-        screen.blit(img_atk, (150, 160))
-        screen.blit(pygame.transform.flip(img_atk, True, False), (1080, 160))
-        # drawing def stat symbol
-        screen.blit(img_def, (150, 210))
-        screen.blit(pygame.transform.flip(img_def, True, False), (1080, 210))
-
-
-
-        # draw enemy
-        if(right != -1):
-            screen.blit(pygame.transform.flip(fighters[right].sprite, True, False), (700, 100))
-            
-            # draw enemy info
-            for r_info in right_info:
-                screen.fill(r_info.color, r_info.rect)
-                # text for box
-                font = pygame.font.SysFont(None, 36)
-                img = font.render(r_info.text, True, r_info.text_color)
-                screen.blit(img, (r_info.rect.left + 10, r_info.rect.top + 10))
-        else:
-            screen.fill((255,255,255), pygame.Rect(700,150,600,400))
     elif(mode == LEVEL):
         for index in range(len(buttons)):
             button = buttons[index]
@@ -72,8 +56,18 @@ def display_mode():
             font = pygame.font.SysFont(None, 36)
             img = font.render(level_labels[index], True, button.text_color)
             screen.blit(img, (button.rect.left + 10, button.rect.top + 10))
+
+    elif(mode == CHOOSE):
+        for index in range(len(buttons)):
+            button = buttons[index]
+            screen.fill(button.color, button.rect)
+            # text for box
+            font = pygame.font.SysFont(None, 36)
+            img = font.render(switch_labels[index], True, button.text_color)
+            screen.blit(img, (button.rect.left + 10, button.rect.top + 10))
+        
     
-    if(mode == LEVEL or mode == BATTLE):
+    if(mode == LEVEL or mode == BATTLE or mode == CHOOSE):
         if(left != -1):
             # draw player
             screen.blit(fighters[left].sprite, (200, 100))
@@ -85,12 +79,39 @@ def display_mode():
                 font = pygame.font.SysFont(None, 36)
                 img = font.render(l_info.text, True, l_info.text_color)
                 screen.blit(img, (l_info.rect.left + 10, l_info.rect.top + 10))    
+            
+            # draw attack stat symbols
+            screen.blit(img_atk, (150, 160))
+            # drawing def stat symbol
+            screen.blit(img_def, (150, 210))
         else:
             screen.fill((255,255,255), pygame.Rect(0,150,600,400))
+
+    if(mode == BATTLE or mode == CHOOSE):
+        # draw enemy
+        if(right != -1):
+            screen.blit(pygame.transform.flip(fighters[right].sprite, True, False), (700, 100))
+            
+            # draw enemy info
+            for r_info in right_info:
+                screen.fill(r_info.color, r_info.rect)
+                # text for box
+                font = pygame.font.SysFont(None, 36)
+                img = font.render(r_info.text, True, r_info.text_color)
+                screen.blit(img, (r_info.rect.left + 10, r_info.rect.top + 10))
+            
+            # draw attack stat symbols
+            screen.blit(pygame.transform.flip(img_atk, True, False), (1080, 160))
+            # drawing def stat symbol
+            screen.blit(pygame.transform.flip(img_def, True, False), (1080, 210))
+            
+        else:
+            screen.fill((255,255,255), pygame.Rect(700,150,600,400))
 
 def handle_click(event):
     global buttons
     global mode
+    global right, left
 
     print("mode: " + str(mode))
     for index in range(len(buttons)):
@@ -113,6 +134,9 @@ def handle_click(event):
                     clear_enemy()
                 elif (index == 5):
                     heal_all()
+                elif (index == 6):
+                    mode = CHOOSE
+
             elif(mode == LEVEL):
                 if(index == 0):
                     fighters[left].atk_min += 5
@@ -133,8 +157,16 @@ def handle_click(event):
                 print("info updated")
                 mode = BATTLE
                 heal_all()
-                    
-                    
+            
+            elif(mode == CHOOSE):
+                if(index == 0):
+                    left = (left + 1) % len(fighters)
+                elif(index == 1):
+                    right = (right + 1) % len(fighters)    
+                elif(index == 5):
+                    if(left != right):
+                        mode = BATTLE    
+                update_info()
                     
 
     print(event.pos)
@@ -198,12 +230,14 @@ def heal_all():
     update_health()
 
 def set_enemy():
-    global right
-    right = 1
+    global right, saved_right
+    if(right == -1):
+        right = saved_right
     update_health()
 
 def clear_enemy():
-    global right
+    global right, saved_right
+    saved_right = right
     right = -1
 
 def add_weapon(ft, power):
@@ -283,9 +317,11 @@ buttons.append(box.box(pygame.Rect(450,600,180,80), (128,128,128), "", (255,255,
 buttons.append(box.box(pygame.Rect(650,600,180,80), (128,128,128), "", (255,255,255)))
 buttons.append(box.box(pygame.Rect(850,600,180,80), (128,128,128), "", (255,255,255)))
 buttons.append(box.box(pygame.Rect(1050,600,180,80), (128,230,128), "", (255,255,255)))
+buttons.append(box.box(pygame.Rect(1130,25,100,50), (128,128,128), "", (255,255,255)))
 
-battle_labels = ["Attack", "Switch", "Add Weapon", "Set", "Clear", "Heal All"]
-level_labels= ["ATK", "DEF", "HP", "??", "ö█.öÅ", "Reset"]
+battle_labels = ["Attack", "Switch", "Add Weapon", "Set", "Clear", "Heal All", "Switch"]
+level_labels= ["ATK", "DEF", "HP", "??", "ö█.öÅ", "Reset",""]
+switch_labels = ["Left", "Right", "", "", "", "Confirm", ""]
 
 #################################################################################################################################
 
@@ -307,6 +343,7 @@ fighters.append(fighter.fighter(";)", 20, 50, 15, 500, img_p6))
 
 left = 0
 right = 1
+saved_right = right
 
 # background of health
 # health+name
