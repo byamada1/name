@@ -24,6 +24,7 @@
 #define STATS_SIZE 0x6
 #define PREVIOUS_ADDRESS_SIZE 0x1
 #define DONE_SIZE 0x1
+#define MAX_PLAYERS 4
 
 #define READ_INT() Wire.read() + (Wire.read() << 8)
 
